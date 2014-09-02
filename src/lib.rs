@@ -113,7 +113,7 @@ impl<'a> MacResult for ParserAnyMacro<'a> {
     }
 }
 
-fn expand_string_to_expr(cx: &mut ExtCtxt, sp: codemap::Span, tts: &[ast::TokenTree]) -> Box<MacResult> {
+fn expand_string_to_expr<'a>(cx: &'a mut ExtCtxt, sp: codemap::Span, tts: &[ast::TokenTree]) -> Box<MacResult + 'a> {
     use syntax::print::pprust;
 
     let mut parser = parse::new_parser_from_tts(cx.parse_sess(), cx.cfg(), Vec::from_slice(tts));
