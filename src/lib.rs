@@ -1,6 +1,5 @@
 #![crate_name = "expand_ident"]
 #![experimental]
-#![crate_type = "rlib"]
 #![feature(plugin_registrar)]
 
 extern crate rustc;
