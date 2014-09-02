@@ -11,25 +11,17 @@ use syntax::codemap;
 use syntax::ext::base::DummyResult;
 use syntax::parse;
 
-use syntax::ast::{Ident, Matcher_, Matcher, MatchTok, MatchNonterminal, MatchSeq};
-use syntax::ast::{TTDelim};
-use syntax::codemap::{Span, Spanned, DUMMY_SP};
-use syntax::ext::base::{ExtCtxt, MacResult, MacroDef};
-use syntax::ext::base::{NormalTT, TTMacroExpander};
-use syntax::ext::tt::macro_parser::{Success, Error, Failure};
-use syntax::ext::tt::macro_parser::{NamedMatch, MatchedSeq, MatchedNonterminal};
-use syntax::ext::tt::macro_parser::{parse, parse_or_else};
-use syntax::parse::lexer::new_tt_reader;
+use syntax::codemap::Span;
+use syntax::ext::base::{ExtCtxt, MacResult};
+use syntax::fold::Folder;
 use syntax::parse::parser::Parser;
 use syntax::parse::attr::ParserAttr;
-use syntax::parse::token::{special_idents, gensym_ident};
-use syntax::parse::token::{FAT_ARROW, SEMI, NtMatchers, NtTT, EOF};
+use syntax::parse::token::{SEMI, EOF};
 use syntax::parse::token;
-use syntax::print;
 use syntax::util::small_vector::SmallVector;
 
 use std::cell::RefCell;
-use std::rc::Rc;
+
 use std::gc::Gc;
 
 #[plugin_registrar]
@@ -116,7 +108,7 @@ fn expand_string_to_expr<'a>(cx: &'a mut ExtCtxt, sp: codemap::Span, tts: &[ast:
     use syntax::print::pprust;
 
     let mut parser = parse::new_parser_from_tts(cx.parse_sess(), cx.cfg(), Vec::from_slice(tts));
-    let arg = cx.expand_expr(parser.parse_expr());
+    let arg = cx.expander().fold_expr(parser.parse_expr());
     let expr_string = match arg.node {
         ast::ExprLit(spanned) => {
             match spanned.node {
@@ -141,7 +133,7 @@ fn expand_string_to_expr<'a>(cx: &'a mut ExtCtxt, sp: codemap::Span, tts: &[ast:
         return DummyResult::expr(sp);
     }
 
-    let mut p = parse::new_parser_from_source_str(cx.parse_sess(), cx.cfg(), "string_expr".to_string(), expr_string);
+    let p = parse::new_parser_from_source_str(cx.parse_sess(), cx.cfg(), "string_expr".to_string(), expr_string);
     return box ParserAnyMacro{
         parser: std::cell::RefCell::new(p),
     } as Box<MacResult>

@@ -3,3 +3,7 @@
 name = "expand_ident"
 version = "0.0.1"
 authors = ["Dan Schatzberg <schatzberg.dan@gmail.com>"]
+
+[lib]
+name = "expand_ident"
+plugin = true
